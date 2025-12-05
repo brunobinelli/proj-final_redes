@@ -1,7 +1,6 @@
 #include <WiFi.h>
 #include <esp_now.h>
 
-// --- STORAGE ---
 String logHistory = "";
 int logCount = 0;
 
@@ -15,9 +14,6 @@ struct_message incomingData;
 struct_message outgoingData;
 esp_now_peer_info_t peerInfo;
 
-// --- CALLBACK MODIFIED FOR ESP32 BOARD V3.0+ ---
-// Changed from: void OnDataRecv(const uint8_t * mac, ...)
-// To: void OnDataRecv(const esp_now_recv_info_t * info, ...)
 void OnDataRecv(const esp_now_recv_info_t * info, const uint8_t *incomingDataPtr, int len) {
   
   // Extract MAC address from the new info structure
