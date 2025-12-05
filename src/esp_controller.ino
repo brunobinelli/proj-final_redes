@@ -3,18 +3,15 @@
 #include <WebServer.h>
 #include <DNSServer.h> 
 
-// --- PIN DEFINITIONS ---
 #define PIN_TRIG 26
 #define PIN_ECHO 25
 #define PIN_BUZZER 14
 #define PIN_RELAY 27
 
-// --- CONSTANTS ---
 const int DISTANCE_THRESHOLD = 30; // cm
 const unsigned long COUNTDOWN_TIME = 15000; // 15 seconds
 const byte DNS_PORT = 53; // DNS Port
 
-// --- GLOBAL VARIABLES ---
 bool alarmArmed = false;
 bool doorOpen = false;
 bool countdownActive = false;
@@ -35,10 +32,8 @@ esp_now_peer_info_t peerInfo;
 WebServer server(80);
 DNSServer dnsServer; 
 
-// Broadcast Address (Sends to everyone)
+// Broadcast Address
 uint8_t broadcastAddress[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
-
-// --- HELPER FUNCTIONS ---
 
 String getSystemTime() {
   unsigned long totalSeconds = millis() / 1000;
@@ -67,7 +62,6 @@ void requestHistory() {
   esp_now_send(broadcastAddress, (uint8_t *) &myData, sizeof(myData));
 }
 
-// --- CALLBACK MODIFIED FOR ESP32 BOARD V3.0+ ---
 void OnDataRecv(const esp_now_recv_info_t * info, const uint8_t *incomingData, int len) {
   struct_message *incomingMsg = (struct_message *) incomingData;
   if (incomingMsg->msgType == 2) {
@@ -88,12 +82,11 @@ float readDistance() {
   return distance;
 }
 
-// --- WEB SERVER HANDLERS ---
+// WEB SERVER
 
 String getHTML() {
   String html = "<!DOCTYPE html><html><head><meta name='viewport' content='width=device-width, initial-scale=1'>";
   
-  // --- BEGIN CSS ---
   html += "<style>";
   html += ":root { --bg-gradient-start: #020617; --bg-gradient-end: #0f172a; --card-bg: rgba(15, 23, 42, 0.95); --text-main: #e5e7eb; --text-muted: #9ca3af; --accent: #38bdf8; --border-soft: rgba(148, 163, 184, 0.3); }";
   html += "* { box-sizing: border-box; margin: 0; padding: 0; }";
@@ -124,7 +117,6 @@ String getHTML() {
   
   html += "@media (max-width: 480px) { .card { padding: 20px 16px 18px; } .card-title { font-size: 20px; } button { font-size: 14px; padding: 12px 10px; } }";
   html += "</style></head>";
-  // --- END DO CSS ---
 
   html += "<body>";
   html += "<div class='dashboard-wrapper'><div class='card'>";
@@ -135,6 +127,7 @@ String getHTML() {
   html += "<p class='card-subtitle'>Monitoramento residencial em tempo real</p>";
   html += "</div>";
 
+  // ALERTA
   if(buzzerActive) {
       html += "<div style='background:rgba(239,68,68,0.2); border:1px solid #ef4444; padding:10px; border-radius:8px; margin-bottom:15px; text-align:center;'>";
       html += "<h2 style='color:#ef4444; font-size:18px; margin:0;'>⚠️ ALARM TRIGGERED!</h2></div>";
@@ -147,37 +140,39 @@ String getHTML() {
   // --- STATUS PANEL ---
   html += "<div class='status-panel'>";
   
-  
+  // Armed/Disarmed Alarm
   html += "<div class='status-row'><span class='status-label'>Status geral</span>";
+  // Logica C++ para escolher a classe CSS e o texto correto
   String statusClass = alarmArmed ? "status-armed" : "status-disarmed";
   String statusText = alarmArmed ? "ARMED" : "DISARMED";
   html += "<span class='status-badge " + statusClass + "'><b>" + statusText + "</b></span></div>";
 
+  // Open/Close Door
   html += "<div class='status-row'><span class='status-label'>Porta principal</span>";
   String doorClass = doorOpen ? "status-door-open" : "status-door-closed";
   String doorText = doorOpen ? "OPEN" : "CLOSED";
   html += "<span class='status-badge " + doorClass + "'><b>" + doorText + "</b></span></div>";
   
-  html += "</div>"; 
+  html += "</div>";
 
-  // --- ACTIONS (Botões) ---
+  // BUTTONS
   html += "<div class='actions'>";
 
-  // Botão 1: Arm/Disarm
+  // Arm/Disarm Alarm
   if (alarmArmed) {
     html += "<a href='/disarm'><button class='off'>DISARM ALARM</button></a>";
   } else {
     html += "<a href='/arm'><button class='on'>ARM ALARM</button></a>";
   }
 
-  // Botão 2: Open/Close Door
+  // Open/Close Door
   if (doorOpen) {
     html += "<a href='/close'><button>CLOSE DOOR</button></a>";
   } else {
     html += "<a href='/open'><button>OPEN DOOR</button></a>";
   }
 
-  // Botão 3: History
+  // History
   html += "<a href='/history'><button class='warn'>VIEW HISTORY</button></a>";
 
   html += "</div>"; // Fecha actions
@@ -254,7 +249,7 @@ void handleHistory() {
   
   String html = "<!DOCTYPE html><html><head><meta name='viewport' content='width=device-width, initial-scale=1'>";
 
-  // --- BEGIN CSS  ---
+  // --- INICIO DO CSS (Comprimido) ---
   html += "<style>";
   html += ":root { --bg-gradient-start: #020617; --bg-gradient-end: #0f172a; --card-bg: rgba(15, 23, 42, 0.95); --text-main: #e5e7eb; --text-muted: #9ca3af; --accent: #38bdf8; --border-soft: rgba(148, 163, 184, 0.3); --log-bg: #020617; --log-border: #1f2937; --log-scrollbar: #4b5563; }";
   html += "* { box-sizing: border-box; margin: 0; padding: 0; }";
@@ -292,7 +287,7 @@ void handleHistory() {
   
   html += "@media (max-width: 600px) { .card { padding: 20px 14px 16px; } textarea { height: 50vh; font-size: 12px; } .actions { justify-content: center; } button { width: 100%; } }";
   html += "</style></head>";
-  // --- END CSS ---
+  // --- FIM DO CSS ---
 
   html += "<body>";
   html += "<div class='dashboard-wrapper'><div class='card'>";
@@ -326,7 +321,7 @@ void handleHistory() {
   server.send(200, "text/html", html);
 }
 
-// --- SETUP & LOOP ---
+// SETUP AND MAIN LOOP
 
 void setup() {
   Serial.begin(115200);
