@@ -40,7 +40,7 @@ A seguir, detalhamos os componentes de hardware que serão utilizados no projeto
 * **Buzzer Passivo:** Atuador sonoro. Servirá como alarme principal.
 
 <div align="center">
-  <img src="img-circ.JPG" alt="Esquema de Ligação" width="400">
+  <img src="images/img-circ.JPG" alt="Esquema de Ligação" width="400">
 </div>
 
 ### 1.3 Componentes de Software:
@@ -194,7 +194,7 @@ Identifique fisicamente qual placa será o **Controlador** e qual será o **Log*
     * A interface de controle (Dashboard) será carregada:
 
 <div align="center">
-    <img src="tela.png" alt="Esquema de Ligação" width="400">
+    <img src="images/tela.png" alt="Esquema de Ligação" width="400">
 </div>
     
 4.  **Teste de Funcionalidade:**
